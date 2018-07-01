@@ -14,6 +14,10 @@ class Mover {
     this.clr = clr;
   }
   
+  void setVelocity(PVector v) {
+    velocity = v;
+  }
+  
   void applyForce(PVector force) {
     PVector a = PVector.div(force, mass);
     acceleration.add(a);
@@ -41,5 +45,4 @@ class Mover {
     ellipse(location.x, location.y, mass * 4, mass * 4);
   }
  
-  
 }
