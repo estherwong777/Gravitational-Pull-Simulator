@@ -1,5 +1,6 @@
 class Mover {
   float mass;
+  float originalMass;
   PVector location;
   PVector velocity;
   PVector acceleration;
@@ -17,8 +18,14 @@ class Mover {
     acceleration = new PVector(0,0);
     history = new ArrayList<PVector>();
     mass = m;
+    originalMass = m;
     this.clr = clr;
     trailOn = false;
+  }
+  
+  void move(float x, float y) {
+    location.x += x;
+    location.y += y;
   }
   
   void setVelocity(PVector v) {
@@ -29,7 +36,10 @@ class Mover {
     trailOn = b;
   }
   
-
+  void scaleMass(float m) {
+    mass = m + originalMass;
+  }
+  
   PVector getVelocity() {
     return velocity;
   }

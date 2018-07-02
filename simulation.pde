@@ -2,10 +2,12 @@ import controlP5.*;
 
 ControlP5 cp5;
 int AttractorMass = 20;
+int moverMass = 1;
 boolean attractorOn;
 boolean moverOn;
 int startTime;
 boolean showTrail = false;
+boolean paused = false;
 
 ArrayList<Mover> m;
 ArrayList<Attractor> a;
@@ -25,7 +27,13 @@ void setup() {
      .setRange(1, 50)
      .setSize(120, 20)
      .setLabel(" Attractor Mass (KG) ");
-    
+     
+  cp5.addSlider("moverMass")
+     .setPosition(60, 30)
+     .setRange(0, 3)
+     .setSize(120, 20)
+     .setLabel(" Avg Mover Mass ");
+     
   cp5.addTextfield("avgVelocity")
      .setPosition(60, 150)
      .setSize(120, 20)
@@ -36,21 +44,33 @@ void setup() {
      .setValue(0)
      .setPosition(60, 90)
      .setSize(60,50)
-     .setLabel("Add \nAttractor");
+     .setLabel("ADD \nATTRACTOR");
     
   cp5.addButton("mover")
     .setValue(0)
     .setPosition(130, 90)
     .setSize(50,50)
-    .setLabel("Add \nmover");
+    .setLabel("ADD \nMOVER");
     
   cp5.addToggle("showTrail")
      .setValue(false)
      .setPosition(60, 190)
      .setSize(40, 20)
-     .setLabel("Show trails")
+     .setLabel("SHOW TRAILS")
      .setMode(ControlP5.SWITCH);
-    
+  
+  cp5.addToggle("paused")
+     .setValue(false)
+     .setPosition(140, 190)
+     .setSize(30, 20)
+     .setLabel("PAUSE");  
+     
+  cp5.addButton("restart")
+    .setValue(0)
+    .setPosition(60, 230)
+    .setSize(120,25)
+    .setLabel("RESTART");
+     
   a = new ArrayList<Attractor>();
   m = new ArrayList<Mover>();
   for (int i = 0; i < 5; i++) {
@@ -69,9 +89,11 @@ void draw() {
       f.add(a.get(i).attract(mover));
       a.get(i).display();
     }
-    updateAvgVelocity();
-    mover.applyForce(f);
-    mover.update();
+    if (!paused) {
+      updateAvgVelocity();
+      mover.applyForce(f);
+      mover.update();
+    }
     mover.display();
     mover.setTrail(showTrail);
   }
@@ -82,12 +104,21 @@ void updateAvgVelocity() {
   for (Mover mover : m) {
     sum.add(mover.getVelocity());
   }
-  cp5.get(Textfield.class, "avgVelocity").setText("  " + sum.mag() / m.size());
+  if (m.size() > 0) {
+    cp5.get(Textfield.class, "avgVelocity").setText("  " + sum.mag() / m.size());
+  } else {
+    cp5.get(Textfield.class, "avgVelocity").setText("  " + 0.0);
+  }
 }
 
 void updateSliders() {
   for (Attractor attr : a) {
     attr.setMass(AttractorMass);
+    println(AttractorMass);
+  }
+  
+  for (Mover mover : m) {
+    mover.scaleMass(moverMass);
   }
 }
 
@@ -108,24 +139,49 @@ public void attractor() {
   moverOn = false;
 }
 
-
+public void restart() {
+  m.clear();
+  a.clear();
+  updateAvgVelocity();
+}
 
 void mouseClicked() {
-  if (attractorOn) {
-    if (mouseX > 170 || mouseY > 150) {
+  if (!mouseOnButtons()) {
+    if (attractorOn) {
       a.add(new Attractor(mouseX, mouseY));
+    } else if (moverOn) {
+      Mover m1 = new Mover(random(1, 3), mouseX, mouseY, colors[0]);
+      Mover m2 = new Mover(random(3, 5), mouseX, mouseY, colors[1]);
+      Mover m3 = new Mover(random(5, 7), mouseX, mouseY, colors[2]);
+    
+      m1.setVelocity(new PVector(3,0));
+      m2.setVelocity(new PVector(-3,0));
+      m3.setVelocity(new PVector(0,-3));
+    
+      m.add(m1);
+      m.add(m2);
+      m.add(m3);
     }
-  } else if (moverOn) {
-    Mover m1 = new Mover(random(1, 3), mouseX, mouseY, colors[0]);
-    Mover m2 = new Mover(random(3, 5), mouseX, mouseY, colors[1]);
-    Mover m3 = new Mover(random(5, 7), mouseX, mouseY, colors[2]);
-    
-    m1.setVelocity(new PVector(3,0));
-    m2.setVelocity(new PVector(-3,0));
-    m3.setVelocity(new PVector(0,-3));
-    
-    m.add(m1);
-    m.add(m2);
-    m.add(m3);
   }
+}
+
+boolean mouseOnPauseButton() {
+  return mouseX > 140 && mouseX < 170 && mouseY > 190 && mouseY < 210;
+}
+
+boolean mouseOnTrailToggle() {
+  return mouseX > 60 && mouseX < 100 && mouseY > 190 && mouseY < 210;
+}
+
+boolean mouseOnAttractorMoverButton() {
+  return mouseX > 60 && mouseX < 180 && mouseY > 90 && mouseY < 140;
+}
+
+boolean mouseOnRestartButton() {
+  return mouseX > 60 && mouseX < 180 && mouseY > 230 && mouseY < 265;
+}
+
+boolean mouseOnButtons() {
+  return mouseOnPauseButton() || mouseOnTrailToggle() || mouseOnAttractorMoverButton() || 
+         mouseOnRestartButton();
 }
