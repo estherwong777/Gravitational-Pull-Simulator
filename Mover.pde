@@ -5,18 +5,30 @@ class Mover {
   PVector acceleration;
   float c = 0.47;
   color clr;
+  ArrayList<PVector> history;
+  int TRAIL_LENGTH = 35;
+  final int TRANSPARENCY = 70;
+  final int DISPLAY_SCALE = 4;
+  boolean trailOn;
   
   public Mover(float m, float x, float y, color clr) {
     location = new PVector(x, y);
-    mass = m;
     velocity = new PVector(0,0);
     acceleration = new PVector(0,0);
+    history = new ArrayList<PVector>();
+    mass = m;
     this.clr = clr;
+    trailOn = false;
   }
   
   void setVelocity(PVector v) {
     velocity = v;
   }
+  
+  void setTrail(boolean b) {
+    trailOn = b;
+  }
+  
 
   PVector getVelocity() {
     return velocity;
@@ -41,12 +53,26 @@ class Mover {
     velocity.add(acceleration);
     location.add(velocity);
     acceleration.mult(0);
+    history.add(new PVector(location.x, location.y));
+    if (history.size() > TRAIL_LENGTH) {
+      history.remove(0);
+    }
   }
   
   void display() {
     stroke(1000);
     fill(clr);
-    ellipse(location.x, location.y, mass * 4, mass * 4);
+    ellipse(location.x, location.y, mass * DISPLAY_SCALE, mass * DISPLAY_SCALE);
+    if (trailOn) {
+      displayTrail(); 
+    }
+  }
+  
+  void displayTrail() {
+    for (PVector v : history) {
+      fill(clr, TRANSPARENCY);
+      ellipse(v.x, v.y, mass * DISPLAY_SCALE, mass * DISPLAY_SCALE);
+    }
   }
  
 }

@@ -5,6 +5,7 @@ int AttractorMass = 20;
 boolean attractorOn;
 boolean moverOn;
 int startTime;
+boolean showTrail = false;
 
 ArrayList<Mover> m;
 ArrayList<Attractor> a;
@@ -43,6 +44,13 @@ void setup() {
     .setSize(50,50)
     .setLabel("Add \nmover");
     
+  cp5.addToggle("showTrail")
+     .setValue(false)
+     .setPosition(60, 190)
+     .setSize(40, 20)
+     .setLabel("Show trails")
+     .setMode(ControlP5.SWITCH);
+    
   a = new ArrayList<Attractor>();
   m = new ArrayList<Mover>();
   for (int i = 0; i < 5; i++) {
@@ -61,11 +69,11 @@ void draw() {
       f.add(a.get(i).attract(mover));
       a.get(i).display();
     }
-    
     updateAvgVelocity();
     mover.applyForce(f);
     mover.update();
     mover.display();
+    mover.setTrail(showTrail);
   }
 }
 
