@@ -17,6 +17,10 @@ class Mover {
   void setVelocity(PVector v) {
     velocity = v;
   }
+
+  PVector getVelocity() {
+    return velocity;
+  }
   
   void applyForce(PVector force) {
     PVector a = PVector.div(force, mass);

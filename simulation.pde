@@ -2,8 +2,9 @@ import controlP5.*;
 
 ControlP5 cp5;
 int AttractorMass = 20;
-boolean attractorOn = false;
-boolean moverOn = false;
+boolean attractorOn;
+boolean moverOn;
+int startTime;
 
 ArrayList<Mover> m;
 ArrayList<Attractor> a;
@@ -12,34 +13,42 @@ color[] colors = {color(255, 105, 180),
                   color(51, 171, 249)};
 
 void setup() {
- size(750, 750);
- cp5 = new ControlP5(this);
+  startTime = millis();
+  size(1000, 750);
+  cp5 = new ControlP5(this);
+  moverOn = false;
+  attractorOn = false;
  
- cp5.addSlider("AttractorMass")
-    .setPosition(60, 60)
-    .setRange(1, 50)
-    .setSize(100, 20)
-    .setLabel(" Attractor Mass");
+  cp5.addSlider("AttractorMass")
+     .setPosition(60, 60)
+     .setRange(1, 50)
+     .setSize(120, 20)
+     .setLabel(" Attractor Mass (KG) ");
     
- cp5.addButton("attractor")
-    .setValue(0)
-    .setPosition(60, 90)
-    .setSize(50,50)
-    .setColorActive(342);
+  cp5.addTextfield("avgVelocity")
+     .setPosition(60, 150)
+     .setSize(120, 20)
+     .setText("  0.0")
+     .setLabel("Avg velocity of movers (m/s)");
+    
+  cp5.addButton("attractor")
+     .setValue(0)
+     .setPosition(60, 90)
+     .setSize(60,50)
+     .setLabel("Add \nAttractor");
     
   cp5.addButton("mover")
     .setValue(0)
-    .setPosition(120, 90)
+    .setPosition(130, 90)
     .setSize(50,50)
-    .setColorActive(1000);
+    .setLabel("Add \nmover");
     
- a = new ArrayList<Attractor>();
- m = new ArrayList<Mover>();
- for (int i = 0; i < 10; i++) {
-   m.add(new Mover(random(1, 7), random(width), random(height), 
-   colors[i % colors.length]));
- }
-
+  a = new ArrayList<Attractor>();
+  m = new ArrayList<Mover>();
+  for (int i = 0; i < 5; i++) {
+    m.add(new Mover(random(1, 7), random(width), random(height), 
+    colors[i % colors.length]));
+  }
 }
 
 void draw() {
@@ -53,10 +62,19 @@ void draw() {
       a.get(i).display();
     }
     
+    updateAvgVelocity();
     mover.applyForce(f);
     mover.update();
     mover.display();
   }
+}
+
+void updateAvgVelocity() {
+  PVector sum = new PVector(0.0, 0.0);
+  for (Mover mover : m) {
+    sum.add(mover.getVelocity());
+  }
+  cp5.get(Textfield.class, "avgVelocity").setText("  " + sum.mag() / m.size());
 }
 
 void updateSliders() {
@@ -65,22 +83,31 @@ void updateSliders() {
   }
 }
 
+public void mover() {
+  if (millis() - startTime < 1000) {
+    //check to prevent button from being pressed when program starts
+    return;
+  }
+  attractorOn = false;
+  moverOn = true;
+}
+
 public void attractor() {
+  if (millis() - startTime < 1000) {
+    return;
+  }
   attractorOn = true;
   moverOn = false;
 }
 
-public void mover() {
-  attractorOn = false;
-  moverOn = true;
-}
+
 
 void mouseClicked() {
   if (attractorOn) {
     if (mouseX > 170 || mouseY > 150) {
       a.add(new Attractor(mouseX, mouseY));
     }
-  } else {
+  } else if (moverOn) {
     Mover m1 = new Mover(random(1, 3), mouseX, mouseY, colors[0]);
     Mover m2 = new Mover(random(3, 5), mouseX, mouseY, colors[1]);
     Mover m3 = new Mover(random(5, 7), mouseX, mouseY, colors[2]);
