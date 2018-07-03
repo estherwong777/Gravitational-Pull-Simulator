@@ -1,4 +1,5 @@
 class Mover {
+  
   float mass;
   float originalMass;
   PVector location;

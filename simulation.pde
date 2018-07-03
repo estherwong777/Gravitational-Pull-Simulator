@@ -87,7 +87,6 @@ void draw() {
     
     for (int i = 0; i < a.size(); i++) {
       f.add(a.get(i).attract(mover));
-      a.get(i).display();
     }
     if (!paused) {
       updateAvgVelocity();
@@ -96,6 +95,10 @@ void draw() {
     }
     mover.display();
     mover.setTrail(showTrail);
+  }
+  
+  for (Attractor attr : a) {
+    attr.display();
   }
 }
 
