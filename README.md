@@ -15,6 +15,7 @@ Adjust the slides 'Mover mass' to scale all the mass of the movers
 Click 'Show Trail' to visualize the trails of each mover
 
 ![alt text](https://github.com/estherwong777/Gravitational-Pull-Simulator/blob/master/images/demo.png "Simulation UI")
+_Screenshot of a simulation_
 
 
 
